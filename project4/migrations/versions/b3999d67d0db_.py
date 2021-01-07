@@ -23,6 +23,7 @@ def upgrade():
     bind = op.get_bind()
     session = orm.Session(bind=bind)
 
+    # – добавьте новую цель "для программирования" преподавателям   8,9,10,11
     goal = Goal(name='dev', description_ru='Для программирования')
     session.add(goal)
 
