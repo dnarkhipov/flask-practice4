@@ -13,8 +13,8 @@
                 <div class="card-body mx-3">
                     <div class="row">
                         <div class="col">
-                            <p>{{ form.goal.label }}</p>
-                            {% for choice in form.goal %}
+                            <p>{{ form.goal_id.label }}</p>
+                            {% for choice in form.goal_id %}
                                 <div class="form-check ">
                                     {{ choice(class_='form-check-input') }}
                                     {{ choice.label(class_='form-check-label') }}

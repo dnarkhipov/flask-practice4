@@ -4,21 +4,21 @@
     <main class="container mt-3">
         <div class="row mt-5">
             <div class="col-10 col-md-6 offset-1 offset-md-3 mb-3">
-                <form action="{{ url_for('get_booking_form', profile_id=form.client_teacher.data, day_of_week=form.client_weekday.data, time=form.client_time.data|replace(':', '')) }}"
+                <form action="{{ url_for('get_booking_form', profile_id=form.teacher_id.data, day_of_week=form.client_weekday.data, time=form.client_time.data|replace(':', '')) }}"
                       class="card mb-3" method="POST">
                     {{ form.csrf_token }}
                     <div class="card-body text-center pt-5">
                         <img src="{{ profile.picture }}" class="mb-3" width="95" alt="{{ profile.name }}">
                         <h2 class="h5 card-title mt-2 mb-2">{{ profile.name }}</h2>
                         <p class="my-1">Запись на пробный урок</p>
-                        <p class="my-1">{{ weekday_names[form.client_weekday.data]['full'] }}, {{ form.client_time.data }}</p>
+                        <p class="my-1">{{ weekday_name }}, {{ form.client_time.data }}</p>
                     </div>
                     <hr/>
                     <div class="card-body mx-3">
                         <div class="row">
                             {{ form.client_weekday(class_="form-control") }}
                             {{ form.client_time(class_="form-control") }}
-                            {{ form.client_teacher(class_="form-control") }}
+                            {{ form.teacher_id(class_="form-control") }}
                         </div>
 
                         {% include 'input_cient_info.html' %}

@@ -3,8 +3,8 @@
 {% block main %}
     <main class="container mt-3">
         <h1 class="h1 text-center w-50 mx-auto mt-1 py-5 mb-4"><strong>
-            {% if goal_code in ['work', 'dev'] %}🏢{% elif goal_code == 'travel' %}⛱{% elif goal_code == 'study' %}🏫{% elif goal_code == 'relocate' %}🚜{% endif %}
-            <br/>Преподаватели<br>{{ goal_name|lower }}</strong></h1>
+            {% if goal.name in ['work', 'dev'] %}🏢{% elif goal.name == 'travel' %}⛱{% elif goal.name == 'study' %}🏫{% elif goal.name == 'relocate' %}🚜{% endif %}
+            <br/>Преподаватели<br>{{ goal.description_ru|lower }}</strong></h1>
         <div class="row">
             <div class="col-12 col-lg-10 offset-lg-1 m-auto">
                 {% for teacher in teachers %}

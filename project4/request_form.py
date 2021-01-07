@@ -7,7 +7,7 @@ from .phone_validate import phone_validate
 
 
 class RequestForm(FlaskForm):
-    goal = RadioField('Какая цель занятий?', [validators.InputRequired()])
+    goal_id = RadioField('Какая цель занятий?', [validators.InputRequired()])
     time_limit = RadioField('Сколько времени есть?', [validators.InputRequired()])
 
     client_name = StringField('Вас зовут', [validators.InputRequired()])

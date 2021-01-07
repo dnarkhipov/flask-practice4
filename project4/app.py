@@ -12,7 +12,7 @@ from .booking_form import BookingForm
 from .request_form import RequestForm
 from .sort_mode_form import SortModeForm
 from .database import db
-from .models import Goal, Teacher
+from .models import Goal, Teacher, SearchRequest, BookingRequest
 
 
 weekday_names_ru = {
@@ -97,20 +97,23 @@ def get_all():
 
 @app.route('/goals/<goal>/')
 def get_goal(goal):
+    goal_rec = db.session.query(Goal).filter(Goal.name == goal).first()
+    teachers = db.session.query(Teacher).order_by(Teacher.id).all()
+    #TODO sorted((t for t in db.teachers if goal in t.get('goals', [])), key=lambda t: t['rating'], reverse=True)
     return render_template(
         'goal.html',
         **base_template_attr,
-        goal_code=goal,
-        goal_name=db.goals.get(goal, 'неопределенного направления'),
-        teachers=sorted((t for t in db.teachers if goal in t.get('goals', [])), key=lambda t: t['rating'], reverse=True)
+        goal=goal_rec,
+        teachers=teachers
     )
 
 
 @app.route('/profiles/<int:profile_id>/')
 def get_profile_by_id(profile_id: int):
-    teacher = db.search_teacher_by_id(profile_id)
-    if not teacher:
-        return redirect('/all')
+    # по условиям задания: Когда преподавателя не существует, выбросьте 404.
+    teacher = db.session.query(Teacher).get_or_404(profile_id)
+    # if not teacher:
+    #     return redirect('/all')
 
     return render_template(
         'profile.html',
@@ -122,25 +125,28 @@ def get_profile_by_id(profile_id: int):
 
 @app.route('/request/', methods=['GET', 'POST'])
 def get_request():
+    goals = db.session.query(Goal).order_by(Goal.id).all()
+
     form = RequestForm()
-    form.goal.choices = [(k, v) for k, v in db.goals.items()]
-    form.time_limit.choices = [(k, v) for k, v in db.time_limits.items()]
+    form.goal_id.choices = [(goal.id, goal.description_ru) for goal in goals]
+    form.time_limit.choices = [(k, v) for k, v in request_time_limits.items()]
 
     if request.method == 'POST':
         if form.validate():
-            request_record = RequestRecord()
+            request_record = SearchRequest()
             form.populate_obj(request_record)
             try:
-                db.add_request_record(request_record)
-            except InternalDbError as err:
+                db.session.add(request_record)
+                db.session.commit()
+            except Exception as err:
                 return f'Internal DB error: {err}', 500
 
             # пакуем данные формы для передачи в квитанцию
             fdata = urlsafe_b64encode(bytes(json.dumps(request_record.as_dict(), ensure_ascii=False), 'utf-8'))
             return redirect(url_for('get_request_done', fdata=fdata))
     else:
-        form.goal.default = next(iter(db.goals), 'empty')
-        form.time_limit.default = next(iter(db.time_limits), 'empty')
+        form.goal_id.default = next(iter(goal.id for goal in goals), 'empty')
+        form.time_limit.default = next(iter(request_time_limits), 'empty')
         form.process()
 
     return render_template(
@@ -154,32 +160,34 @@ def get_request():
 def get_request_done(fdata):
     # распаковываем данные формы
     request_record = json.loads(urlsafe_b64decode(fdata).decode('utf-8'))
+    goal_rec = db.session.query(Goal).get(request_record['goal_id'])
     return render_template(
         'request_done.html',
         **base_template_attr,
         request_info=request_record,
-        goals=db.goals,
-        time_limits=db.time_limits
+        goal=goal_rec.description_ru,
+        time_limit=request_time_limits[request_record['time_limit']]
     )
 
 
 @app.route('/booking/<int:profile_id>/<day_of_week>/<time>/', methods=['GET', 'POST'])
 def get_booking_form(profile_id: int, day_of_week, time):
-    teacher = db.search_teacher_by_id(profile_id)
-    if not teacher:
-        return redirect('/all')
+    teacher = db.session.query(Teacher).get_or_404(profile_id)
+    # if not teacher:
+    #     return redirect('/all')
 
     form = BookingForm()
-    form.client_teacher.data = profile_id
+    form.teacher_id.data = profile_id
     form.client_weekday.data = day_of_week
     form.client_time.data = f'{time[:2]}:{time[-2:]}'
 
     if request.method == 'POST' and form.validate():
-        booking_record = BookingRecord()
+        booking_record = BookingRequest()
         form.populate_obj(booking_record)
         try:
-            db.add_booking_record(booking_record)
-        except InternalDbError as err:
+            db.session.add(booking_record)
+            db.session.commit()
+        except Exception as err:
             return f'Internal DB error: {err}', 500
 
         # пакуем данные формы для передачи в квитанцию
@@ -191,7 +199,7 @@ def get_booking_form(profile_id: int, day_of_week, time):
         **base_template_attr,
         profile=teacher,
         form=form,
-        weekday_names=weekday_names_ru
+        weekday_name=weekday_names_ru[day_of_week]['full']
     )
 
 
@@ -203,7 +211,7 @@ def get_booking_form_done(fdata):
         'booking_done.html',
         **base_template_attr,
         booking_info=booking_record,
-        weekday_names=weekday_names_ru
+        weekday_name=weekday_names_ru[booking_record['client_weekday']]['full']
     )
 
 

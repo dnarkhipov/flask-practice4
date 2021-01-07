@@ -9,7 +9,7 @@ from .phone_validate import phone_validate
 class BookingForm(FlaskForm):
     client_weekday = HiddenField()
     client_time = HiddenField()
-    client_teacher = HiddenField()
+    teacher_id = HiddenField()
 
     client_name = StringField('Вас зовут', [validators.InputRequired()])
     client_phone = TelField('Ваш телефон', [validators.InputRequired(), phone_validate])
