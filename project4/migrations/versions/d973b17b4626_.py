@@ -56,7 +56,7 @@ def upgrade():
     sa.ForeignKeyConstraint(['goal_id'], ['goals.id'], ),
     sa.PrimaryKeyConstraint('id')
     )
-    op.create_table('teacher_goals',
+    teacher_goals_tbl = op.create_table('teacher_goals',
     sa.Column('goal_id', sa.Integer(), nullable=True),
     sa.Column('teacher_id', sa.Integer(), nullable=True),
     sa.ForeignKeyConstraint(['goal_id'], ['goals.id'], ),
@@ -64,25 +64,38 @@ def upgrade():
     )
     # ### end Alembic commands ###
 
+    # вспомогательный словарь с присвоенными id для целей
+    goals_id = {goal[1]: (goal[0], goals[goal[1]]) for goal in enumerate(goals)}
+
     op.bulk_insert(
         goals_tbl,
         [dict(
-            name=name,
-            description_ru=desc
-        ) for name, desc in goals.items()]
+            id=goal[0],
+            name=goal_name,
+            description_ru=goal[1]
+        ) for goal_name, goal in goals_id.items()]
     )
 
-    op.bulk_insert(
-        teachers_tbl,
-        [dict(
-            name=teacher['name'],
-            about=teacher['about'],
-            rating=teacher['rating'],
-            picture=teacher['picture'],
-            price=teacher['price'],
-            free=json.dumps(teacher['free'])
-        ) for teacher in teachers]
-    )
+    for teacher in teachers:
+        op.bulk_insert(
+            teachers_tbl,
+            [dict(
+                id=teacher['id'],
+                name=teacher['name'],
+                about=teacher['about'],
+                rating=teacher['rating'],
+                picture=teacher['picture'],
+                price=teacher['price'],
+                free=json.dumps(teacher['free'])
+            )]
+        )
+        op.bulk_insert(
+            teacher_goals_tbl,
+            [dict(
+                goal_id=goals_id[goal][0],
+                teacher_id=teacher['id']
+            ) for goal in teacher.get('goals', [])]
+        )
 
 
 def downgrade():

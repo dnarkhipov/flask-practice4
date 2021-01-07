@@ -12,7 +12,7 @@ from .booking_form import BookingForm
 from .request_form import RequestForm
 from .sort_mode_form import SortModeForm
 from .database import db
-from .models import Goal, Teacher, SearchRequest, BookingRequest
+from .models import Goal, Teacher, SearchRequest, BookingRequest, teacher_goals
 
 
 weekday_names_ru = {
@@ -36,6 +36,7 @@ request_time_limits = {
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config['SQLALCHEMY_ECHO'] = True
 
 csrf = CSRFProtect(app)
 app.config['SECRET_KEY'] = '1a0b329d-f511-47d0-a111-335d2acbfd88'   # SECRET_KEY
@@ -98,8 +99,9 @@ def get_all():
 @app.route('/goals/<goal>/')
 def get_goal(goal):
     goal_rec = db.session.query(Goal).filter(Goal.name == goal).first()
-    teachers = db.session.query(Teacher).order_by(Teacher.id).all()
-    #TODO sorted((t for t in db.teachers if goal in t.get('goals', [])), key=lambda t: t['rating'], reverse=True)
+    if goal_rec is None:
+        return redirect('/all')
+    teachers = db.session.query(Teacher).filter(Teacher.goals.any(Goal.name == goal)).order_by(Teacher.rating.desc()).all()
     return render_template(
         'goal.html',
         **base_template_attr,

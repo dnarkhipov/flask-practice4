@@ -12,8 +12,8 @@
                         <section class="teacher=info">
 
                             <h1 class="h2">{{ profile.name }}</h1>
-                            <p>{% for g in profile.goals %}
-                                <span class="badge badge-secondary mr-2">{{ g }} </span>{% endfor %}
+                            <p>{% for goal in profile.goals %}
+                                <span class="badge badge-secondary mr-2">{{ goal.name }} </span>{% endfor %}
                                 Рейтинг: {{ profile.rating }} Ставка: {{ profile.price }} / час</p>
                             <p>{{ profile.about }}</p>
 
