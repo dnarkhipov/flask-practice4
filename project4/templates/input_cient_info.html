@@ -1,0 +1,11 @@
+{{ form.client_name.label(class_="mb-1 mt-2") }}
+{{ form.client_name(class_="form-control") }}
+{{ form.client_phone.label(class_="mb-1 mt-2") }}
+{% if form.client_phone.errors|length > 0 %}
+    {{ form.client_phone(class_="form-control is-invalid") }}
+    {% for err in form.client_phone.errors %}
+        <div class="invalid-feedback">{{ err }}</div>
+    {% endfor %}
+{% else %}
+    {{ form.client_phone(class_="form-control") }}
+{% endif %}

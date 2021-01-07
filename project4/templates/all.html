@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <main class="container mt-3">
+        <h1 class="h1 text-center w-50 mx-auto mt-1 py-5 mb-4"><strong>Все преподаватели</strong></h1>
+
+
+        <div class="row">
+            <div class="col-12 col-lg-10 offset-lg-1 m-auto">
+
+
+                <div class="card mb-4">
+                    <div class="card-body align-right">
+
+                        <p class="lead float-left d-inline-block mt-2 mb-0"><strong>{{ teachers|count }} преподавателей
+                            в базе</strong></p>
+
+                        <form action="{{ url_for('get_all') }}" class="float-right d-inline-block" method="post">
+                            {{ form.csrf_token }}
+                            <div class="form-inline">
+                                {{ form.sort_mode(class_='custom-select my-1 mr-2') }}
+                                <button type="submit" class="btn btn-primary my-1">Сортировать</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+                {% for teacher in teachers %}
+                    {% include 'teacher_card.html' %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <h2 class="text-center mt-5 mb-3">Не нашли своего репетитора?</h2>
+        <p class="text-center mb-4">Расскажите, кто вам нужен и мы подберем его сами</p>
+        <div class="text-center pb-5">
+            <a href="{{ url_for('get_request') }}" class="btn btn-primary">Заказать подбор</a>
+        </div>
+
+
+    </main>
+{% endblock %}

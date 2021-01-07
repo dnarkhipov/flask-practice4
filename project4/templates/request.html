@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block main %}
+    <main class="container mt-5">
+        <div class="col-12 col-sm-10 col-lg-6 offset-lg-3 offset-sm-1">
+            <form action="{{ url_for('get_request') }}" class="card mb-5" method="POST">
+                {{ form.csrf_token }}
+                <div class="card-body text-center pt-5">
+                    <h1 class="h3 card-title mt-4 mb-2">Подбор преподавателя</h1>
+                    <p class="px-5">Напишите, чего вам нужно и&nbsp;мы&nbsp;подберем отличных&nbsp;ребят</p>
+                </div>
+                <hr>
+                <div class="card-body mx-3">
+                    <div class="row">
+                        <div class="col">
+                            <p>{{ form.goal.label }}</p>
+                            {% for choice in form.goal %}
+                                <div class="form-check ">
+                                    {{ choice(class_='form-check-input') }}
+                                    {{ choice.label(class_='form-check-label') }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="col">
+                            <p>{{ form.time_limit.label }}</p>
+                            {% for choice in form.time_limit %}
+                                <div class="form-check ">
+                                    {{ choice(class_='form-check-input') }}
+                                    {{ choice.label(class_='form-check-label') }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <hr>
+                <div class="card-body mx-3">
+                    {% include 'input_cient_info.html' %}
+                    <input type="submit" class="btn btn-primary mt-4 mb-2" value="Найдите мне преподавателя">
+                </div>
+            </form>
+        </div>
+    </main>
+{% endblock %}
