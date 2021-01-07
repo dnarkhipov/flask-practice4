@@ -1,4 +1,4 @@
-"""empty message
+"""Инициализация БД и заливка первичных данных
 
 Revision ID: d973b17b4626
 Revises: 
@@ -7,9 +7,11 @@ Create Date: 2021-01-07 18:22:46.756852
 """
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy import orm
 
 import json
 from project4.data.data import goals, teachers
+from project4.models import Goal, Teacher
 
 
 # revision identifiers, used by Alembic.
@@ -64,38 +66,63 @@ def upgrade():
     )
     # ### end Alembic commands ###
 
-    # вспомогательный словарь с присвоенными id для целей
-    goals_id = {goal[1]: (goal[0], goals[goal[1]]) for goal in enumerate(goals)}
+    # https://stackoverflow.com/questions/24612395/how-do-i-execute-inserts-and-updates-in-an-alembic-upgrade-script
+    session = orm.Session(bind=op.get_bind())
 
-    op.bulk_insert(
-        goals_tbl,
-        [dict(
-            id=goal[0],
-            name=goal_name,
-            description_ru=goal[1]
-        ) for goal_name, goal in goals_id.items()]
-    )
+    for goal_name, desc in goals.items():
+        session.add(Goal(name=goal_name, description_ru=desc))
 
     for teacher in teachers:
-        op.bulk_insert(
-            teachers_tbl,
-            [dict(
+        session.add(
+            Teacher(
                 id=teacher['id'],
                 name=teacher['name'],
                 about=teacher['about'],
                 rating=teacher['rating'],
                 picture=teacher['picture'],
                 price=teacher['price'],
-                free=json.dumps(teacher['free'])
-            )]
+                free=json.dumps(teacher['free']),
+                goals=session.query(Goal).filter(Goal.name.in_(teacher['goals'])).all()
+            )
         )
-        op.bulk_insert(
-            teacher_goals_tbl,
-            [dict(
-                goal_id=goals_id[goal][0],
-                teacher_id=teacher['id']
-            ) for goal in teacher.get('goals', [])]
-        )
+
+    session.commit()
+
+    # Первоначальный вариант заливки данных
+    # =====================================================
+    #
+    # вспомогательный словарь с присвоенными id для целей
+    # goals_id = {goal[1]: (goal[0], goals[goal[1]]) for goal in enumerate(goals)}
+    #
+    # op.bulk_insert(
+    #     goals_tbl,
+    #     [dict(
+    #         id=goal[0],
+    #         name=goal_name,
+    #         description_ru=goal[1]
+    #     ) for goal_name, goal in goals_id.items()]
+    # )
+    #
+    # for teacher in teachers:
+    #     op.bulk_insert(
+    #         teachers_tbl,
+    #         [dict(
+    #             id=teacher['id'],
+    #             name=teacher['name'],
+    #             about=teacher['about'],
+    #             rating=teacher['rating'],
+    #             picture=teacher['picture'],
+    #             price=teacher['price'],
+    #             free=json.dumps(teacher['free'])
+    #         )]
+    #     )
+    #     op.bulk_insert(
+    #         teacher_goals_tbl,
+    #         [dict(
+    #             goal_id=goals_id[goal][0],
+    #             teacher_id=teacher['id']
+    #         ) for goal in teacher.get('goals', [])]
+    #     )
 
 
 def downgrade():
