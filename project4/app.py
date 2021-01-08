@@ -7,6 +7,7 @@ from base64 import urlsafe_b64encode, urlsafe_b64decode
 from flask import Flask, render_template, send_from_directory, redirect, url_for, request
 from flask_wtf.csrf import CSRFProtect
 from flask_migrate import Migrate
+from sqlalchemy.exc import DBAPIError
 
 from .booking_form import BookingForm
 from .request_form import RequestForm
@@ -140,8 +141,8 @@ def get_request():
             try:
                 db.session.add(request_record)
                 db.session.commit()
-            except Exception as err:
-                return f'Internal DB error: {err}', 500
+            except DBAPIError as err:
+                return f'Internal DBAPI error: {err}', 500
 
             # пакуем данные формы для передачи в квитанцию
             fdata = urlsafe_b64encode(bytes(json.dumps(request_record.as_dict(), ensure_ascii=False), 'utf-8'))
@@ -189,8 +190,8 @@ def get_booking_form(profile_id: int, day_of_week, time):
         try:
             db.session.add(booking_record)
             db.session.commit()
-        except Exception as err:
-            return f'Internal DB error: {err}', 500
+        except DBAPIError as err:
+            return f'Internal DBAPI error: {err}', 500
 
         # пакуем данные формы для передачи в квитанцию
         fdata = urlsafe_b64encode(bytes(json.dumps(booking_record.as_dict(), ensure_ascii=False), 'utf-8'))
