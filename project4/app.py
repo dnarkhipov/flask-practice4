@@ -12,7 +12,7 @@ from .booking_form import BookingForm
 from .request_form import RequestForm
 from .sort_mode_form import SortModeForm
 from .database import db
-from .models import Goal, Teacher, SearchRequest, BookingRequest, teacher_goals
+from .models import Goal, Teacher, SearchRequest, BookingRequest
 
 
 weekday_names_ru = {
