@@ -52,7 +52,7 @@ class BookingRequest(Model):
     id = Column(db.Integer, primary_key=True)
     client_weekday = Column(db.String(80), nullable=False)
     client_time = Column(db.String(5), nullable=False)
-    teacher_id = Column(db.Integer, db.ForeignKey('teachers.id'))
+    teacher_id = Column(db.Integer, db.ForeignKey('teachers.id'), nullable=False)
     client_name = Column(db.String(80), nullable=False)
     client_phone= Column(db.String(50), nullable=False)
 
@@ -70,7 +70,7 @@ class BookingRequest(Model):
 class SearchRequest(Model):
     __tablename__ = 'search_requests'
     id = Column(db.Integer, primary_key=True)
-    goal_id = Column(db.Integer, db.ForeignKey('goals.id'))
+    goal_id = Column(db.Integer, db.ForeignKey('goals.id'), nullable=False)
     time_limit = Column(db.String(30), nullable=False)
     client_name = Column(db.String(80), nullable=False)
     client_phone= Column(db.String(50), nullable=False)
