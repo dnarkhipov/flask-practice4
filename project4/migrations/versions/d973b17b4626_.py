@@ -43,7 +43,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('client_weekday', sa.String(length=80), nullable=False),
     sa.Column('client_time', sa.String(length=5), nullable=False),
-    sa.Column('teacher_id', sa.Integer(), nullable=True),
+    sa.Column('teacher_id', sa.Integer(), nullable=False),
     sa.Column('client_name', sa.String(length=80), nullable=False),
     sa.Column('client_phone', sa.String(length=50), nullable=False),
     sa.ForeignKeyConstraint(['teacher_id'], ['teachers.id'], ),
@@ -51,7 +51,7 @@ def upgrade():
     )
     op.create_table('search_requests',
     sa.Column('id', sa.Integer(), nullable=False),
-    sa.Column('goal_id', sa.Integer(), nullable=True),
+    sa.Column('goal_id', sa.Integer(), nullable=False),
     sa.Column('time_limit', sa.String(length=30), nullable=False),
     sa.Column('client_name', sa.String(length=80), nullable=False),
     sa.Column('client_phone', sa.String(length=50), nullable=False),
@@ -59,8 +59,8 @@ def upgrade():
     sa.PrimaryKeyConstraint('id')
     )
     teacher_goals_tbl = op.create_table('teacher_goals',
-    sa.Column('goal_id', sa.Integer(), nullable=True),
-    sa.Column('teacher_id', sa.Integer(), nullable=True),
+    sa.Column('goal_id', sa.Integer(), nullable=False),
+    sa.Column('teacher_id', sa.Integer(), nullable=False),
     sa.ForeignKeyConstraint(['goal_id'], ['goals.id'], ),
     sa.ForeignKeyConstraint(['teacher_id'], ['teachers.id'], )
     )
