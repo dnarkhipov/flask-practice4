@@ -4,8 +4,8 @@ from .database import db, Model, Column
 
 teacher_goals = db.Table(
     'teacher_goals',
-    Column('goal_id', db.Integer, db.ForeignKey('goals.id')),
-    Column('teacher_id', db.Integer, db.ForeignKey('teachers.id'))
+    Column('goal_id', db.Integer, db.ForeignKey('goals.id'), nullable=False),
+    Column('teacher_id', db.Integer, db.ForeignKey('teachers.id'), nullable=False)
 )
 
 
